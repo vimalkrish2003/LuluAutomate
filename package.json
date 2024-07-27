@@ -1,0 +1,20 @@
+{
+  "name": "lulu-automation",
+  "version": "1.0.0",
+  "description": "A REST API that automates functions in https://www.luluhypermarket.in/en-in from fetching items to checkout",
+  "main": "api.js",
+  "type": "module",
+  "scripts": {
+    "start": "node api.js",
+    "dev": "nodemon api.js"
+  },
+  "author": "Vimal Krishna V",
+  "license": "ISC",
+  "dependencies": {
+    "p-limit": "^6.1.0",
+    "puppeteer": "^23.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

@@ -1,0 +1,19 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# dotenv environment variables file
+.env
+
+# IDE specific files
+.vscode/
+.idea/
+.DS_Store
