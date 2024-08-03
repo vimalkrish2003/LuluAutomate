@@ -227,6 +227,120 @@ async function fetchItems(items) {
   
   }
 
+
+
+async function checkout(email,password,UPI_ID) {
+  const browser = await puppeteer.launch({ headless: false });
+  let page;
+  try {
+    page = await browser.newPage();
+    await signIn(email,password, page);
+    await page.goto(LuluHyperMarketCartPage);
+    await page.waitForSelector('#checkoutitems');
+    const modalVisiblePromise = page.waitForSelector('.modal.date-time-modal.fade:not([aria-hidden="true"])', { timeout: 10000 });
+    await page.click('#checkoutitems');
+    try {
+      try {
+        await modalVisiblePromise;
+      } catch (error) {
+        throw new Error('modalVisiblePromise failed');
+      }
+
+      const buttonClickedPromise = page.waitForFunction(() => {
+        function isVisible(element) {
+          if (!element) {
+            return false;
+          }
+
+          const style = getComputedStyle(element);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            return false;
+          }
+
+          const rect = element.getBoundingClientRect();
+          return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
+        }
+
+        function clickFirstAvailableTime() {
+          const activeRow = document.querySelector('.row.active');
+          if (!activeRow) {
+            console.log('No active row found');
+            return false;
+          }
+
+          const availableTimeSlot = activeRow.querySelector('.available');
+          if (!availableTimeSlot) {
+            console.log('No available time slot found in the active row');
+            return false;
+          }
+
+          availableTimeSlot.click();
+          console.log('Clicked the first available time slot');
+          return true;
+        }
+
+        const modal = document.getElementById('dateTimeUpdateModal');
+        if (isVisible(modal)) {
+          if (clickFirstAvailableTime()) {
+            const updateButton = modal.querySelector('.js-updateSlotThroughForm');
+            if (updateButton) {
+              updateButton.click(); // click the button
+              console.log('Clicked the update button');
+              return true;
+            }
+          }
+        }
+        return false;
+      }, {
+        timeout: 30000, // Adjust timeout as needed
+        polling: 'mutation' // Check for DOM mutations
+      });
+
+      await Promise.all([buttonClickedPromise, page.waitForNavigation()]);
+      await page.waitForSelector('#checkoutitems');
+      await page.click('#checkoutitems')
+      await page.waitForNavigation()
+    } catch (error) {
+      if (error.message === 'modalVisiblePromise failed') {
+        console.log('Navigated to payment page directly');
+      }
+      else {
+        console.log(error);
+      }
+    }
+    //After clicking checkoutitems and now Proceeding to payment
+    await page.waitForSelector('#checkoutAddressNextBtn');
+    await Promise.all([page.waitForNavigation(), page.click('#checkoutAddressNextBtn')]);
+    await page.focus('#netbanking_IN');
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('#netbankingRazor');
+    await page.click('#netbankingRazor');
+    await page.waitForSelector('#redeembtn_netbanking');
+    await page.click('#redeembtn_netbanking');
+    await page.waitForNavigation();
+    await page.waitForSelector('li[m="upi"][d="false"]');
+    await page.click('li[m="upi"][d="false"]');
+    await page.waitForSelector('input[name="vpa"]', { visible: true });
+    await page.type('input[name="vpa"]', UPI_ID);
+    await page.waitForSelector('button#pay-now', { visible: true });
+    await page.click('button#pay-now');
+    await new Promise(resolve => setTimeout(resolve, 60000));
+
+  }
+  catch (error) {
+    console.error(`An error occurred in checkout: ${error.message}`);
+    throw error;
+  }
+  finally {
+    if (page) {
+      await page.close();
+    }
+    await browser.close();
+
+  }
+}
+
+
 ////////////////////////////////////
 // TESTING FUNCTIONS ///////////////            
 ////////////////////////////////////
