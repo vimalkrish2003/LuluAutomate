@@ -11,6 +11,8 @@
   "author": "Vimal Krishna V",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "p-limit": "^6.1.0",
     "puppeteer": "^23.0.2"
   },

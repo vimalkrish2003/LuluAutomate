@@ -522,5 +522,12 @@ async function runAddFilteredItemsToCart() {
 //signIn(process.env.USER_EMAIL, process.env.USER_PASSWORD);
 
 
-
+export {
+  fetchItems,
+  signIn,
+  addItemToCart,
+  clearCart,
+  addFilteredItemsToCart,
+  checkout
+}
   
