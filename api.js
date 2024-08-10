@@ -77,12 +77,25 @@ function validateCredentials(req, res, next) {
 
 
 //routes
+/**
+ * @api {get} / Welcome Message
+ * @apiName GetWelcome
+ * @apiGroup Root
+ * @apiSuccess {String} message Welcome message.
+ */
 app.get('/', (req, res) => {
     res.send('Welcome to the Lulu Hypermarket API');
 });
 
-// parameters are email and password
-// response is a token
+/**
+ * @api {post} /signin Sign In
+ * @apiName SignIn
+ * @apiGroup Auth
+ * @apiParam {String} email User's email.
+ * @apiParam {String} password User's password.
+ * @apiSuccess {String} message Sign in successful message.
+ * @apiError {String} error Error message.
+ */
 app.post('/signin',validateCredentials, async (req, res) => {
     try {
         await signIn(req.body.email, req.body.password);
@@ -92,8 +105,17 @@ app.post('/signin',validateCredentials, async (req, res) => {
     }
 });
 
-// parameters are authKey,email and a list containing the items to be fetched from the site
-// response is a list of  items with name,price,url of each item
+
+/**
+ * @api {post} /fetchItems Fetch Items
+ * @apiName FetchItems
+ * @apiGroup Items
+ * @apiParam {String} authKey User's authentication key.
+ * @apiParam {String} email User's email.
+ * @apiParam {Array} items List of items to be fetched.
+ * @apiSuccess {Array} items List of items with name, price, and URL.
+ * @apiError {String} error Error message.
+ */
 app.post('/fetchItems', async (req, res) => {
     try {
         let { items } = req.body;
@@ -111,7 +133,15 @@ app.post('/fetchItems', async (req, res) => {
     }
 });
 
-
+/**
+ * @api {post} /clearCart Clear Cart
+ * @apiName ClearCart
+ * @apiGroup Cart
+ * @apiHeader {String} email User's email.
+ * @apiHeader {String} password User's password.
+ * @apiSuccess {String} message Cart cleared message.
+ * @apiError {String} error Error message.
+ */
 app.post('/clearCart',validateHeaders, async (req, res) => {
     try {
         await clearCart(req.headers['email'], req.headers['password']);
@@ -121,6 +151,16 @@ app.post('/clearCart',validateHeaders, async (req, res) => {
     }
 });
 
+/**
+ * @api {post} /addToCart Add to Cart
+ * @apiName AddToCart
+ * @apiGroup Cart
+ * @apiHeader {String} email User's email.
+ * @apiHeader {String} password User's password.
+ * @apiParam {Array} items List of items to be added to the cart received from FetchItems.
+ * @apiSuccess {String} message Items added to cart message.
+ * @apiError {String} error Error message.
+ */
 app.post('/addToCart',validateHeaders, async (req, res) => {
     try {
         let { items } = req.body;
@@ -138,7 +178,16 @@ app.post('/addToCart',validateHeaders, async (req, res) => {
     }
 });
 
-
+/**
+ * @api {post} /checkout Checkout
+ * @apiName Checkout
+ * @apiGroup Cart
+ * @apiHeader {String} email User's email.
+ * @apiHeader {String} password User's password.
+ * @apiParam {String} upiID User's UPI ID.
+ * @apiSuccess {String} message Checkout successful message.
+ * @apiError {String} error Error message.
+ */
 app.post('/checkout',validateHeaders,validateupiID, async(req, res) => {
     try {
         await checkout(req.headers['email'], req.headers['password'],req.body.upiID);
